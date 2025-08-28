@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+.scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100);
+  border-radius: 10px;
+}
+
+.scrollbar {
+  scrollbar-width: thin;              /* Firefox */
+  scrollbar-color: rgba(100,100,100) transparent;
+}
