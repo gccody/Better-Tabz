@@ -10,8 +10,8 @@ Follow these steps to get the project running locally on your machine.
 ## 1. Clone the Repository
 
 ```bash
-git clone https://github.com/gccody/Better-Tab.git
-cd Better-Tab
+git clone https://github.com/gccody/Better-Tabz.git
+cd Better-Tabz
 ```
 
 > If you already have the project folder, just `cd` into it.
