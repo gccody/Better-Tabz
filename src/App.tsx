@@ -9,7 +9,7 @@ function App() {
 
   useEffect(() => {
     const fetchBookmarks = async () => {
-      setBookmarks(await getBookmarks());
+      setBookmarks((await getBookmarks()).filter((val) => val.url === undefined));
     }
     fetchBookmarks();
   }, []);
