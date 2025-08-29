@@ -6,8 +6,8 @@ interface CardHeaderProps {
 
 const CardHeader: React.FC<CardHeaderProps> = ({ title }) => {
   return (
-    <div className="h-9 w-full bg-gray-700 flex justify-center items-center">
-      <h2 className="text-white text-2xl font-bold">{title}</h2>
+    <div className="h-9 w-full bg-gray-800 flex justify-center items-center border-b border-gray-700">
+      <h2 className="text-white text-lg font-medium">{title}</h2>
     </div>
   )
 }
