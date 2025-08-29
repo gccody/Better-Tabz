@@ -11,7 +11,7 @@ export const getBookmarks = (): Promise<BookmarkTreeNode[]> =>
       browser = firefox
 
     const otherBookmarksTitle = typeof firefox === "undefined" ? "Other bookmarks" : "Other Bookmarks";
-    const dataFolderTitle = "BetterTab";
+    const dataFolderTitle = "BetterTabz";
     const tree = (await browser.bookmarks.getTree())[0];
     const otherBookmarks = tree.children?.find((val) => val.title === otherBookmarksTitle) ?? await browser.bookmarks.create({ parentId: tree.id, title: otherBookmarksTitle });
     const dataFolder = otherBookmarks.children?.find((val => val.title === dataFolderTitle)) ?? await browser.bookmarks.create({ parentId: otherBookmarks.id, title: dataFolderTitle });
