@@ -11,5 +11,8 @@
     "gecko": {
       "id": "bettertabz@gccody.com"
     }
+  },
+  "icons": {
+    "128": "favicon.png"
   }
 }
