@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite build --watch",
     "build": "tsc -b && vite build",
-    "zip": "npm run build && cd dist && zip -r ../extension.zip *",
+    "zip": "npm run build && node scripts/zip.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },
