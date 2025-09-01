@@ -6,10 +6,12 @@ import { useEffect, useState } from "react";
 
 function App() {
   const [bookmarks, setBookmarks] = useState<BookmarkTreeNode[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchBookmarks = async () => {
       setBookmarks((await getBookmarks()).filter((val) => val.url === undefined));
+      setLoading(false);
     }
     fetchBookmarks();
   }, []);
@@ -27,12 +29,15 @@ function App() {
     }
   };
 
+  if (loading)
+    return <div className="bg-gray-900"></div>
+
   return (
     <div className="flex flex-row w-dvw h-dvh gap-4 p-4 bg-gray-900 overflow-auto flex-wrap scrollbar">
       {bookmarks.length === 0 ? (
         <div className="flex items-center justify-center w-full h-full text-center">
           <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-gray-600/30 shadow-lg">
-            <p className="text-white text-lg font-medium mb-2 opacity-90">You need to add some folders to the BetterTabz folder</p>
+            <p className="text-white text-lg font-medium mb-2 opacity-90">You need to add some folders to the BetterTabz folder by clicking the plus in the bottom left</p>
             <p className="text-gray-300 text-sm opacity-80">then add some bookmarks to those sub folders</p>
           </div>
         </div>
