@@ -28,7 +28,7 @@ function App() {
   };
 
   return (
-    <div className="flex flex-row w-dvw h-dvh gap-4 p-4 bg-gray-900">
+    <div className="flex flex-row w-dvw h-dvh gap-4 p-4 bg-gray-900 overflow-auto flex-wrap scrollbar">
       {bookmarks.length === 0 ? (
         <div className="flex items-center justify-center w-full h-full text-center">
           <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-gray-600/30 shadow-lg">
