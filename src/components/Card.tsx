@@ -1,6 +1,6 @@
-import type { BookmarkTreeNode } from "../types";
-import CardHeader from "./CardHeader";
-import CardItem from "./CardItem";
+import CardHeader from "@/components/CardHeader";
+import CardItem from "@/components/CardItem";
+import type { BookmarkTreeNode } from "@/types";
 
 interface CardProps {
   folder: BookmarkTreeNode;

@@ -1,5 +1,5 @@
+import type { BookmarkTreeNode } from "@/types";
 import React from "react";
-import type { BookmarkTreeNode } from "../types";
 
 interface CardItemProps {
   bookmark: BookmarkTreeNode;

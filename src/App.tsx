@@ -1,8 +1,8 @@
+import "@/assets/styles.css";
+import Card from "@/components/Card";
+import type { BookmarkTreeNode } from "@/types";
+import { createBookmarkFolder, getBookmarks } from "@/utils";
 import { useEffect, useState } from "react";
-import "./assets/styles.css";
-import Card from "./components/Card";
-import type { BookmarkTreeNode } from "./types";
-import { createBookmarkFolder, getBookmarks } from "./utils";
 
 function App() {
   const [bookmarks, setBookmarks] = useState<BookmarkTreeNode[]>([]);
