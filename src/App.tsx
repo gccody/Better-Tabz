@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./assets/styles.css";
 import Card from "./components/Card";
 import type { BookmarkTreeNode } from "./types";
-import { getBookmarks } from "./utils";
+import { createBookmarkFolder, getBookmarks } from "./utils";
 
 function App() {
   const [bookmarks, setBookmarks] = useState<BookmarkTreeNode[]>([]);
@@ -13,6 +13,19 @@ function App() {
     }
     fetchBookmarks();
   }, []);
+
+  const handleAddCard = async () => {
+    const folderName = prompt("Enter a name for the new card:");
+    if (folderName && folderName.trim()) {
+      try {
+        const newFolder = await createBookmarkFolder(folderName.trim());
+        setBookmarks(prev => [...prev, newFolder]);
+      } catch (error) {
+        console.error("Failed to create folder:", error);
+        alert("Failed to create folder. Please try again.");
+      }
+    }
+  };
 
   return (
     <div className="flex flex-row w-dvw h-dvh gap-4 p-4 bg-gray-900">
@@ -26,6 +39,14 @@ function App() {
       ) : (
         bookmarks.map((folder) => <Card folder={folder} />)
       )}
+      <button
+        className="fixed bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-colors"
+        onClick={handleAddCard}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        </svg>
+      </button>
     </div>
   )
 }

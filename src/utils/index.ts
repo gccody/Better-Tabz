@@ -18,3 +18,25 @@ export const getBookmarks = (): Promise<BookmarkTreeNode[]> =>
 
     resolve(dataFolder.children ?? []);
   });
+  
+  export const createBookmarkFolder = (title: string): Promise<BookmarkTreeNode> =>
+    new Promise(async (resolve) => {
+      let browser;
+      if (typeof firefox === "undefined")
+        browser = chrome;
+      else
+        browser = firefox
+  
+      const otherBookmarksTitle = typeof firefox === "undefined" ? "Other bookmarks" : "Other Bookmarks";
+      const dataFolderTitle = "BetterTabz";
+      const tree = (await browser.bookmarks.getTree())[0];
+      const otherBookmarks = tree.children?.find((val) => val.title.toLowerCase() === otherBookmarksTitle.toLowerCase())  ?? await browser.bookmarks.create({ parentId: tree.id, title: otherBookmarksTitle });
+      const dataFolder = otherBookmarks.children?.find((val => val.title.toLowerCase() === dataFolderTitle.toLowerCase())) ?? await browser.bookmarks.create({ parentId: otherBookmarks.id, title: dataFolderTitle });
+  
+      const newFolder = await browser.bookmarks.create({
+        parentId: dataFolder.id,
+        title: title
+      });
+  
+      resolve(newFolder);
+    });
