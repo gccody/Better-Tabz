@@ -1,5 +1,5 @@
 import firefox from "webextension-polyfill";
-import type { BookmarkTreeNode } from "../types";
+import type { BookmarkTreeNode } from "@/types";
 
 /**
  * Gets the browser instance (chrome or firefox)
