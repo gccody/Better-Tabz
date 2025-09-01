@@ -19,3 +19,25 @@ export const createBookmarkFolder = (title: string): Promise<BookmarkTreeNode> =
 
     resolve(newFolder);
   });
+
+export const changeFolderName = (folderId: string, newName: string) => {
+  return new Promise<void>(async (resolve) => {
+    const browser = getBrowser();
+
+    await browser.bookmarks.update(folderId, {
+      title: newName
+    })
+    
+    resolve();
+  })
+}
+
+export const deleteFolder = (folderId: string) => {
+  return new Promise<void>(async (resolve) => {
+    const browser = getBrowser();
+
+    await browser.bookmarks.remove(folderId);
+
+    resolve();
+  })
+}
