@@ -35,17 +35,19 @@ function App() {
     return <div className="bg-gray-900"></div>
 
   return (
-    <div className="flex flex-row w-dvw h-dvh gap-4 p-4 bg-gray-900 overflow-auto flex-wrap scrollbar">
-      {bookmarks.length === 0 ? (
-        <div className="flex items-center justify-center w-full h-full text-center">
-          <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-gray-600/30 shadow-lg">
-            <p className="text-white text-lg font-medium mb-2 opacity-90">You need to add some folders to the BetterTabz folder by clicking the plus in the bottom left</p>
-            <p className="text-gray-300 text-sm opacity-80">then add some bookmarks to those sub folders</p>
+    <div className="min-h-screen w-full bg-gray-900 p-4 overflow-auto scrollbar">
+      <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))' }}>
+        {bookmarks.length === 0 ? (
+          <div className="col-span-full flex items-center justify-center min-h-[50vh] text-center">
+            <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-gray-600/30 shadow-lg">
+              <p className="text-white text-lg font-medium mb-2 opacity-90">You need to add some folders to the BetterTabz folder by clicking the plus in the bottom left</p>
+              <p className="text-gray-300 text-sm opacity-80">then add some bookmarks to those sub folders</p>
+            </div>
           </div>
-        </div>
-      ) : (
-        bookmarks.map((folder) => <Card key={folder.id} folder={folder} onBookmarkChange={fetchBookmarks} />)
-      )}
+        ) : (
+          bookmarks.map((folder) => <Card key={folder.id} folder={folder} onBookmarkChange={fetchBookmarks} />)
+        )}
+      </div>
       <button
         className="fixed bottom-4 left-4 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:opacity-100 opacity-50 transition-opacity"
         onClick={handleAddCard}

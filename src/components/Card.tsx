@@ -54,7 +54,7 @@ const Card: React.FC<CardProps> = ({ folder, onBookmarkChange }) => {
   ];
 
   return (
-    <div className="flex flex-col rounded-lg h-96 w-80 bg-gray-800 border border-gray-700 shadow-md overflow-hidden" onContextMenu={handleContextMenu}>
+    <div className="flex flex-col rounded-lg h-96 w-full max-w-sm bg-gray-800 border border-gray-700 shadow-md overflow-hidden" onContextMenu={handleContextMenu}>
       <CardHeader title={folder.title} />
       <div className="w-full overflow-auto flex flex-1 flex-col scrollbar">
         {
