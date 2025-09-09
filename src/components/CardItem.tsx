@@ -16,7 +16,7 @@ const CardItem: React.FC<CardItemProps> = ({ bookmark }) => {
 
       {/* Favicon */}
       <div className="p-1 bg-gray-200/20 rounded-4xl mr-1">
-        <img height={16} width={16} src={`http://www.google.com/s2/favicons?domain=${bookmark.url!}`} />
+        <img height={16} width={16} src={`https://favdb.gccody.com/favicon?url=${bookmark.url!}`} />
       </div>
 
       {/* Bookmark title */}
