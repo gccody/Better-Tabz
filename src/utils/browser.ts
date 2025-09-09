@@ -1,5 +1,5 @@
-import firefox from "webextension-polyfill";
 import type { BookmarkTreeNode } from "@/types";
+import firefox from "webextension-polyfill";
 
 /**
  * Gets the browser instance (chrome or firefox)
@@ -44,4 +44,20 @@ export const getDataFolder = async (): Promise<BookmarkTreeNode> => {
   });
   
   return dataFolder;
+};
+
+/**
+ * Updates a bookmark folder's title
+ */
+export const updateBookmarkFolder = async (id: string, title: string): Promise<void> => {
+  const browser = getBrowser();
+  await browser.bookmarks.update(id, { title });
+};
+
+/**
+ * Deletes a bookmark folder
+ */
+export const deleteBookmarkFolder = async (id: string): Promise<void> => {
+  const browser = getBrowser();
+  await browser.bookmarks.remove(id);
 };

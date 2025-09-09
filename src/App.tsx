@@ -8,11 +8,13 @@ function App() {
   const [bookmarks, setBookmarks] = useState<BookmarkTreeNode[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const fetchBookmarks = async () => {
+    const bookmarksData = await getBookmarks();
+    setBookmarks(bookmarksData.filter((val) => val.url === undefined));
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchBookmarks = async () => {
-      setBookmarks((await getBookmarks()).filter((val) => val.url === undefined));
-      setLoading(false);
-    }
     fetchBookmarks();
   }, []);
 
@@ -42,7 +44,7 @@ function App() {
           </div>
         </div>
       ) : (
-        bookmarks.map((folder) => <Card folder={folder} />)
+        bookmarks.map((folder) => <Card key={folder.id} folder={folder} onBookmarkChange={fetchBookmarks} />)
       )}
       <button
         className="fixed bottom-4 left-4 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:opacity-100 opacity-50 transition-opacity"
