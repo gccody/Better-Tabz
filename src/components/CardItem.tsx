@@ -1,9 +1,9 @@
-import type { BookmarkTreeNode } from "@/types";
-import RightClickMenu from "@/components/RightClickMenu";
 import EditBookmarkModal from "@/components/EditBookmarkModal";
-import { updateBookmark, deleteBookmarkFolder } from "@/utils/browser";
-import React from "react";
+import RightClickMenu from "@/components/RightClickMenu";
 import { useDialog } from "@/contexts/DialogContext";
+import type { BookmarkTreeNode } from "@/types";
+import { deleteBookmarkFolder, updateBookmark } from "@/utils/browser";
+import React from "react";
 
 interface CardItemProps {
   bookmark: BookmarkTreeNode;
@@ -15,7 +15,7 @@ const CardItem: React.FC<CardItemProps> = ({ bookmark, onBookmarkChange }) => {
   const [showEditModal, setShowEditModal] = React.useState(false);
   const { showAlert, showConfirm } = useDialog();
 
-  const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const handleClick = (_e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (!menuPosition && !showEditModal) {
       window.location.href = bookmark.url!
     }
