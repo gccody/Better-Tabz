@@ -3,10 +3,12 @@ import Card from "@/components/Card";
 import type { BookmarkTreeNode } from "@/types";
 import { createBookmarkFolder, getBookmarks } from "@/utils";
 import { useEffect, useState } from "react";
+import { useDialog } from "@/contexts/DialogContext";
 
 function App() {
   const [bookmarks, setBookmarks] = useState<BookmarkTreeNode[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const { showPrompt, showAlert } = useDialog();
 
   const fetchBookmarks = async () => {
     const bookmarksData = await getBookmarks();
@@ -19,16 +21,22 @@ function App() {
   }, []);
 
   const handleAddCard = async () => {
-    const folderName = prompt("Enter a name for the new card:");
-    if (folderName && folderName.trim()) {
-      try {
-        const newFolder = await createBookmarkFolder(folderName.trim());
-        setBookmarks(prev => [...prev, newFolder]);
-      } catch (error) {
-        console.error("Failed to create folder:", error);
-        alert("Failed to create folder. Please try again.");
+    showPrompt(
+      "New Folder",
+      "Enter a name for the new card:",
+      "",
+      async (folderName) => {
+        if (folderName && folderName.trim()) {
+          try {
+            const newFolder = await createBookmarkFolder(folderName.trim());
+            setBookmarks(prev => [...prev, newFolder]);
+          } catch (error) {
+            console.error("Failed to create folder:", error);
+            showAlert("Error", "Failed to create folder. Please try again.");
+          }
+        }
       }
-    }
+    );
   };
 
   if (loading)

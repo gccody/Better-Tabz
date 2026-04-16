@@ -55,6 +55,14 @@ export const updateBookmarkFolder = async (id: string, title: string): Promise<v
 };
 
 /**
+ * Updates a bookmark's title and/or URL
+ */
+export const updateBookmark = async (id: string, updates: { title?: string; url?: string }): Promise<void> => {
+  const browser = getBrowser();
+  await browser.bookmarks.update(id, updates);
+};
+
+/**
  * Deletes a bookmark folder
  */
 export const deleteBookmarkFolder = async (id: string): Promise<void> => {

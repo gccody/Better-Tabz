@@ -4,6 +4,7 @@ import RightClickMenu from "@/components/RightClickMenu";
 import type { BookmarkTreeNode } from "@/types";
 import { deleteBookmarkFolder, updateBookmarkFolder } from "@/utils/browser";
 import { useState } from "react";
+import { useDialog } from "@/contexts/DialogContext";
 
 interface CardProps {
   folder: BookmarkTreeNode;
@@ -13,6 +14,7 @@ interface CardProps {
 const Card: React.FC<CardProps> = ({ folder, onBookmarkChange }) => {
   const children = folder.children?.filter((val) => val.url) ?? [];
   const [menuPosition, setMenuPosition] = useState<{ x: number; y: number } | null>(null);
+  const { showPrompt, showAlert, showConfirm } = useDialog();
 
   const handleContextMenu = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.preventDefault();
@@ -24,28 +26,40 @@ const Card: React.FC<CardProps> = ({ folder, onBookmarkChange }) => {
   }
 
   const handleEdit = async () => {
-    const newName = prompt("Enter new name for this folder:", folder.title);
-    if (newName && newName.trim() && newName !== folder.title) {
-      try {
-        await updateBookmarkFolder(folder.id, newName.trim());
-        onBookmarkChange(); // Trigger refetch after successful edit
-      } catch (error) {
-        console.error("Failed to update folder:", error);
-        alert("Failed to update folder. Please try again.");
+    showPrompt(
+      "Edit Folder",
+      "Enter new name for this folder:",
+      folder.title,
+      async (newName) => {
+        if (newName && newName.trim() && newName !== folder.title) {
+          try {
+            await updateBookmarkFolder(folder.id, newName.trim());
+            onBookmarkChange();
+          } catch (error) {
+            console.error("Failed to update folder:", error);
+            showAlert("Error", "Failed to update folder. Please try again.");
+          }
+        }
       }
-    }
+    );
   }
 
   const handleDelete = async () => {
-    if (confirm(`Are you sure you want to delete "${folder.title}"?`)) {
-      try {
-        await deleteBookmarkFolder(folder.id);
-        onBookmarkChange(); // Trigger refetch after successful delete
-      } catch (error) {
-        console.error("Failed to delete folder:", error);
-        alert("Failed to delete folder. Please try again.");
+    showConfirm(
+      "Delete Folder",
+      `Are you sure you want to delete "${folder.title}"?`,
+      async (confirmed) => {
+        if (confirmed) {
+          try {
+            await deleteBookmarkFolder(folder.id);
+            onBookmarkChange();
+          } catch (error) {
+            console.error("Failed to delete folder:", error);
+            showAlert("Error", "Failed to delete folder. Please try again.");
+          }
+        }
       }
-    }
+    );
   }
 
   const menuItems = [
@@ -58,7 +72,7 @@ const Card: React.FC<CardProps> = ({ folder, onBookmarkChange }) => {
       <CardHeader title={folder.title} />
       <div className="w-full overflow-auto flex flex-1 flex-col scrollbar">
         {
-          children.map((bookmark) => <CardItem key={bookmark.id} bookmark={bookmark} />)
+          children.map((bookmark) => <CardItem key={bookmark.id} bookmark={bookmark} onBookmarkChange={onBookmarkChange} />)
         }
       </div>
       {menuPosition && (
