@@ -31,7 +31,8 @@
       "@/public/*": [
         "./public/*"
       ]
-    }
+    },
+    "types": ["chrome"]
   },
   "include": [
     "src"
