@@ -14,7 +14,7 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        newtab: 'index.html',
+        bettertabz: 'index.html',
       }
     },
     outDir: 'dist',
