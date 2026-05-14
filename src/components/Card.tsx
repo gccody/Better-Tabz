@@ -9,9 +9,20 @@ import { useDialog } from "@/contexts/DialogContext";
 interface CardProps {
   folder: BookmarkTreeNode;
   onBookmarkChange: () => void;
+  isDraggingCard: boolean;
+  cardDropIndicator: 'before' | 'after' | null;
+  onCardDragStart: (folderId: string) => void;
+  onCardDragEnd: () => void;
+  onCardDragOver: (targetFolderId: string, position: 'before' | 'after') => void;
+  onCardDragLeave: () => void;
+  onCardDrop: (targetFolderId: string, position: 'before' | 'after') => void;
 }
 
-const Card: React.FC<CardProps> = ({ folder, onBookmarkChange }) => {
+const Card: React.FC<CardProps> = ({
+  folder, onBookmarkChange,
+  isDraggingCard, cardDropIndicator,
+  onCardDragStart, onCardDragEnd, onCardDragOver, onCardDragLeave, onCardDrop,
+}) => {
   const children = folder.children?.filter((val) => val.url) ?? [];
   const [menuPosition, setMenuPosition] = useState<{ x: number; y: number } | null>(null);
   const [dropIndicator, setDropIndicator] = useState<number | null>(null);
@@ -69,22 +80,55 @@ const Card: React.FC<CardProps> = ({ folder, onBookmarkChange }) => {
     setDropIndicator(position === 'before' ? index : index + 1);
   };
 
-  const handleContainerDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleCardDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    e.dataTransfer.setData('application/card-json', JSON.stringify({ folderId: folder.id }));
+    e.dataTransfer.effectAllowed = 'move';
+    onCardDragStart(folder.id);
+  };
+
+  const handleDragEnd = () => {
+    onCardDragEnd();
+  };
+
+  // Unified dragover: routes to card-reorder or item-drop logic based on data type.
+  // CardItem stops propagation for item drags, so this only fires for:
+  //   (a) item drag over empty card space, or
+  //   (b) card drag over anything in this card (CardItem lets card drags bubble).
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    setIsDragTarget(true);
-    // Only fires when over empty space (items stop propagation)
-    setDropIndicator(children.length);
+    if (e.dataTransfer.types.includes('application/card-json')) {
+      setIsDragTarget(false);
+      setDropIndicator(null);
+      const rect = e.currentTarget.getBoundingClientRect();
+      const position = e.clientX < rect.left + rect.width / 2 ? 'before' : 'after';
+      onCardDragOver(folder.id, position);
+    } else {
+      setIsDragTarget(true);
+      setDropIndicator(children.length);
+    }
   };
 
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     if (!e.currentTarget.contains(e.relatedTarget as Node)) {
       setDropIndicator(null);
       setIsDragTarget(false);
+      if (e.dataTransfer.types.includes('application/card-json')) {
+        onCardDragLeave();
+      }
     }
   };
 
+  // Unified drop: routes to card-reorder or item-drop logic based on data type.
   const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+
+    if (e.dataTransfer.types.includes('application/card-json')) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const position = e.clientX < rect.left + rect.width / 2 ? 'before' : 'after';
+      onCardDrop(folder.id, position);
+      return;
+    }
+
     const currentIndicator = dropIndicator;
     setDropIndicator(null);
     setIsDragTarget(false);
@@ -96,7 +140,7 @@ const Card: React.FC<CardProps> = ({ folder, onBookmarkChange }) => {
       return;
     }
 
-    const { bookmarkId, sourceFolderId } = data;
+    const { bookmarkId } = data;
     const targetVisualIndex = currentIndicator ?? children.length;
     const itemAtTarget = children[targetVisualIndex];
 
@@ -105,14 +149,6 @@ const Card: React.FC<CardProps> = ({ folder, onBookmarkChange }) => {
       absoluteIndex = (folder.children ?? []).findIndex(c => c.id === itemAtTarget.id);
     } else {
       absoluteIndex = folder.children?.length ?? 0;
-    }
-
-    // Chrome moves by removing the item first then inserting — adjust index for same-folder moves
-    if (sourceFolderId === folder.id) {
-      const sourceAbsoluteIndex = (folder.children ?? []).findIndex(c => c.id === bookmarkId);
-      if (sourceAbsoluteIndex !== -1 && sourceAbsoluteIndex < absoluteIndex) {
-        absoluteIndex--;
-      }
     }
 
     try {
@@ -131,16 +167,25 @@ const Card: React.FC<CardProps> = ({ folder, onBookmarkChange }) => {
 
   return (
     <div
-      className={`flex flex-col rounded-lg h-96 w-full max-w-sm bg-gray-800 border shadow-md overflow-hidden transition-colors ${isDragTarget ? 'border-blue-500/60' : 'border-gray-700'}`}
+      draggable
+      className={`relative flex flex-col rounded-lg h-96 w-full max-w-sm bg-gray-800 border shadow-md overflow-hidden transition-all cursor-grab active:cursor-grabbing ${
+        isDraggingCard ? 'opacity-40' : ''
+      } ${isDragTarget ? 'border-blue-500/60' : 'border-gray-700'}`}
       onContextMenu={handleContextMenu}
+      onDragStart={handleCardDragStart}
+      onDragEnd={handleDragEnd}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
     >
+      {cardDropIndicator === 'before' && (
+        <div className="absolute inset-y-0 left-0 w-1 bg-blue-400 z-10 pointer-events-none rounded-l-lg" />
+      )}
+      {cardDropIndicator === 'after' && (
+        <div className="absolute inset-y-0 right-0 w-1 bg-blue-400 z-10 pointer-events-none rounded-r-lg" />
+      )}
       <CardHeader title={folder.title} />
-      <div
-        className="w-full overflow-auto flex flex-1 flex-col scrollbar"
-        onDragOver={handleContainerDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
+      <div className="w-full overflow-auto flex flex-1 flex-col scrollbar">
         {children.map((bookmark, i) => (
           <>
             {dropIndicator === i && (

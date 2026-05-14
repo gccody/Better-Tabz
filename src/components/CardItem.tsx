@@ -69,17 +69,21 @@ const CardItem: React.FC<CardItemProps> = ({ bookmark, onBookmarkChange, folderI
   }
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    e.stopPropagation(); // Prevent card dragstart from also firing
     e.dataTransfer.setData('application/json', JSON.stringify({ bookmarkId: bookmark.id, sourceFolderId: folderId }));
     e.dataTransfer.effectAllowed = 'move';
     setIsDragging(true);
   };
 
-  const handleDragEnd = () => {
+  const handleDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
+    e.stopPropagation(); // Prevent card dragend from also firing
     setIsDragging(false);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+    // Let card drags bubble up to the card's outer div handler
+    if (e.dataTransfer.types.includes('application/card-json')) return;
     e.stopPropagation();
     const rect = e.currentTarget.getBoundingClientRect();
     const position = e.clientY < rect.top + rect.height / 2 ? 'before' : 'after';

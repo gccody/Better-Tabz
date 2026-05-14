@@ -1,18 +1,24 @@
 import "@/assets/styles.css";
 import Card from "@/components/Card";
 import type { BookmarkTreeNode } from "@/types";
-import { createBookmarkFolder, getBookmarks } from "@/utils";
+import { getDataFolder, moveBookmark } from "@/utils/browser";
+import { createBookmarkFolder } from "@/utils";
 import { useEffect, useState } from "react";
 import { useDialog } from "@/contexts/DialogContext";
 
 function App() {
   const [bookmarks, setBookmarks] = useState<BookmarkTreeNode[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [dataFolderId, setDataFolderId] = useState<string | null>(null);
+  const [draggingCardId, setDraggingCardId] = useState<string | null>(null);
+  const [dropTargetCardId, setDropTargetCardId] = useState<string | null>(null);
+  const [cardDropPosition, setCardDropPosition] = useState<'before' | 'after' | null>(null);
   const { showPrompt, showAlert } = useDialog();
 
   const fetchBookmarks = async () => {
-    const bookmarksData = await getBookmarks();
-    setBookmarks(bookmarksData.filter((val) => val.url === undefined));
+    const dataFolder = await getDataFolder();
+    setDataFolderId(dataFolder.id);
+    setBookmarks((dataFolder.children ?? []).filter((val) => val.url === undefined));
     setLoading(false);
   };
 
@@ -39,6 +45,51 @@ function App() {
     );
   };
 
+  const handleCardDragStart = (folderId: string) => {
+    setDraggingCardId(folderId);
+  };
+
+  const handleCardDragEnd = () => {
+    setDraggingCardId(null);
+    setDropTargetCardId(null);
+    setCardDropPosition(null);
+  };
+
+  const handleCardDragOver = (targetFolderId: string, position: 'before' | 'after') => {
+    if (targetFolderId === draggingCardId) return;
+    setDropTargetCardId(targetFolderId);
+    setCardDropPosition(position);
+  };
+
+  const handleCardDragLeave = () => {
+    setDropTargetCardId(null);
+    setCardDropPosition(null);
+  };
+
+  const handleCardDrop = async (targetFolderId: string, position: 'before' | 'after') => {
+    const sourceId = draggingCardId;
+
+    setDraggingCardId(null);
+    setDropTargetCardId(null);
+    setCardDropPosition(null);
+
+    if (!sourceId || !dataFolderId || sourceId === targetFolderId) return;
+
+    const sourceIndex = bookmarks.findIndex(b => b.id === sourceId);
+    const targetIndex = bookmarks.findIndex(b => b.id === targetFolderId);
+    if (sourceIndex === -1 || targetIndex === -1) return;
+
+    const insertIndex = position === 'before' ? targetIndex : targetIndex + 1;
+
+    try {
+      await moveBookmark(sourceId, { parentId: dataFolderId, index: insertIndex });
+      fetchBookmarks();
+    } catch (error) {
+      console.error("Failed to move card:", error);
+      showAlert("Error", "Failed to move card. Please try again.");
+    }
+  };
+
   if (loading)
     return <div className="bg-gray-900"></div>
 
@@ -53,7 +104,20 @@ function App() {
             </div>
           </div>
         ) : (
-          bookmarks.map((folder) => <Card key={folder.id} folder={folder} onBookmarkChange={fetchBookmarks} />)
+          bookmarks.map((folder) => (
+            <Card
+              key={folder.id}
+              folder={folder}
+              onBookmarkChange={fetchBookmarks}
+              isDraggingCard={draggingCardId === folder.id}
+              cardDropIndicator={dropTargetCardId === folder.id ? cardDropPosition : null}
+              onCardDragStart={handleCardDragStart}
+              onCardDragEnd={handleCardDragEnd}
+              onCardDragOver={handleCardDragOver}
+              onCardDragLeave={handleCardDragLeave}
+              onCardDrop={handleCardDrop}
+            />
+          ))
         )}
       </div>
       <button
