@@ -69,3 +69,11 @@ export const deleteBookmarkFolder = async (id: string): Promise<void> => {
   const browser = getBrowser();
   await browser.bookmarks.remove(id);
 };
+
+/**
+ * Moves a bookmark to a new parent folder and/or position
+ */
+export const moveBookmark = async (id: string, destination: { parentId?: string; index?: number }): Promise<void> => {
+  const browser = getBrowser();
+  await browser.bookmarks.move(id, destination);
+};

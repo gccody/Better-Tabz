@@ -8,11 +8,15 @@ import React from "react";
 interface CardItemProps {
   bookmark: BookmarkTreeNode;
   onBookmarkChange: () => void;
+  folderId: string;
+  itemIndex: number;
+  onDragOverItem: (index: number, position: 'before' | 'after') => void;
 }
 
-const CardItem: React.FC<CardItemProps> = ({ bookmark, onBookmarkChange }) => {
+const CardItem: React.FC<CardItemProps> = ({ bookmark, onBookmarkChange, folderId, itemIndex, onDragOverItem }) => {
   const [menuPosition, setMenuPosition] = React.useState<{ x: number; y: number } | null>(null);
   const [showEditModal, setShowEditModal] = React.useState(false);
+  const [isDragging, setIsDragging] = React.useState(false);
   const { showAlert, showConfirm } = useDialog();
 
   const handleClick = (_e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -64,13 +68,39 @@ const CardItem: React.FC<CardItemProps> = ({ bookmark, onBookmarkChange }) => {
     );
   }
 
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    e.dataTransfer.setData('application/json', JSON.stringify({ bookmarkId: bookmark.id, sourceFolderId: folderId }));
+    e.dataTransfer.effectAllowed = 'move';
+    setIsDragging(true);
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const position = e.clientY < rect.top + rect.height / 2 ? 'before' : 'after';
+    onDragOverItem(itemIndex, position);
+  };
+
   const menuItems = [
     { label: "Edit", action: handleEdit },
     { label: "Delete", action: handleDelete },
   ];
 
   return (
-    <div className="h-min-9 py-1 w-full bg-gray-800 cursor-pointer flex flex-row items-center px-3 hover:bg-gray-700 transition-all duration-200 border-b border-gray-700 last:border-b-0" onClick={handleClick} onContextMenu={handleContextMenu}>
+    <div
+      draggable
+      className={`h-min-9 py-1 w-full bg-gray-800 cursor-pointer flex flex-row items-center px-3 hover:bg-gray-700 transition-all duration-200 border-b border-gray-700 last:border-b-0 ${isDragging ? 'opacity-40' : ''}`}
+      onClick={handleClick}
+      onContextMenu={handleContextMenu}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragOver={handleDragOver}
+    >
 
       {/* Favicon */}
       <div className="p-1 bg-gray-200/20 rounded-4xl mr-1">
